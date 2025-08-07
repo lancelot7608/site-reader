@@ -1,7 +1,4 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 
 const chapters = [
   {
@@ -21,7 +18,7 @@ export default function Reader() {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
 
-  const handleTextSelect = (e) => {
+  const handleTextSelect = () => {
     const selection = window.getSelection();
     const text = selection.toString();
     if (text.length > 0) setSelectedText(text);
@@ -32,7 +29,7 @@ export default function Reader() {
       setComments([...comments, {
         text: selectedText,
         comment,
-        gptReply: `GPT: Ця фраза символізує внутрішній перелом героя. Він переходить від дії до осмислення.`,
+        gptReply: 'GPT: Ця фраза символізує внутрішній перелом героя. Він переходить від дії до осмислення.',
         authorReply: null,
       }]);
       setComment('');
@@ -47,47 +44,45 @@ export default function Reader() {
   };
 
   return (
-    <div className="p-4 space-y-6">
+    <div style={{ padding: '1rem' }} onMouseUp={handleTextSelect}>
       {chapters.map((ch) => (
-        <Card key={ch.id} onMouseUp={handleTextSelect} className="cursor-text">
-          <CardContent>
-            <h2 className="text-xl font-bold mb-2">{ch.title}</h2>
-            <p>{ch.content}</p>
-          </CardContent>
-        </Card>
+        <div key={ch.id} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+          <h2>{ch.title}</h2>
+          <p>{ch.content}</p>
+        </div>
       ))}
 
       {selectedText && (
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Ви виділили: "{selectedText}"</p>
-          <Textarea
+        <div style={{ marginBottom: '1rem' }}>
+          <p><em>Ви виділили:</em> "{selectedText}"</p>
+          <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Ваше питання або коментар"
+            rows={3}
+            style={{ width: '100%', marginBottom: '0.5rem' }}
           />
-          <Button onClick={handleSubmit}>Надіслати</Button>
+          <button onClick={handleSubmit}>Надіслати</button>
         </div>
       )}
 
-      <div className="space-y-4">
-        {comments.map((c, i) => (
-          <Card key={i} className="bg-muted">
-            <CardContent className="space-y-2">
-              <p><strong>Мітка:</strong> "{c.text}"</p>
-              <p><strong>Коментар:</strong> {c.comment}</p>
-              <p><strong>{c.gptReply}</strong></p>
-              {c.authorReply ? (
-                <p><strong>Автор:</strong> {c.authorReply}</p>
-              ) : (
-                <Textarea
-                  placeholder="Ваша відповідь як автора"
-                  onBlur={(e) => handleAuthorReply(i, e.target.value)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {comments.map((c, i) => (
+        <div key={i} style={{ border: '1px solid #eee', padding: '0.5rem', marginBottom: '0.5rem' }}>
+          <p><strong>Мітка:</strong> "{c.text}"</p>
+          <p><strong>Коментар:</strong> {c.comment}</p>
+          <p><strong>{c.gptReply}</strong></p>
+          {c.authorReply ? (
+            <p><strong>Автор:</strong> {c.authorReply}</p>
+          ) : (
+            <textarea
+              placeholder="Ваша відповідь як автора"
+              onBlur={(e) => handleAuthorReply(i, e.target.value)}
+              rows={2}
+              style={{ width: '100%' }}
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
